@@ -8,8 +8,8 @@ interface Movie {
   title: string;
   poster_path: string;
   release_date: string;
-  imdb_id: string; // Added
-  matched_tags: string[]; // Added
+  imdb_id: string; 
+  matched_tags: string[]; 
 }
 
 interface ApiResponse {
@@ -34,6 +34,7 @@ export default function Home() {
   const [minRating, setMinRating] = useState("3.0");
   const [era, setEra] = useState("all");
   const [language, setLanguage] = useState("all");
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   // Cycle through the loading text to show off the architecture
   useEffect(() => {
@@ -120,10 +121,10 @@ export default function Home() {
               onChange={(e) => setMinRating(e.target.value)}
               className="bg-transparent text-white text-sm focus:outline-none cursor-pointer"
             >
-        <option value="3.0">Guilty Pleasures & Up (3.0+)</option>
-        <option value="5.0">Decent / Watchable (5.0+)</option>
-        <option value="7.0">Great / Highly Rated (7.0+)</option>
-        <option value="8.0">Masterpiece (8.0+)</option>
+              <option value="3.0">Guilty Pleasures & Up (3.0+)</option>
+              <option value="5.0">Decent / Watchable (5.0+)</option>
+              <option value="7.0">Great / Highly Rated (7.0+)</option>
+              <option value="8.0">Masterpiece (8.0+)</option>
             </select>
           </div>
 
@@ -151,29 +152,29 @@ export default function Home() {
               onChange={(e) => setLanguage(e.target.value)}
               className="bg-transparent text-white text-sm focus:outline-none cursor-pointer"
             >
-<option value="all">Global (Any)</option>
-      <option disabled>──────────</option>
-      <option value="ar">Arabic</option>
-      <option value="zh">Chinese</option>
-      <option value="da">Danish</option>
-      <option value="nl">Dutch</option>
-      <option value="en">English</option>
-      <option value="fr">French</option>
-      <option value="de">German</option>
-      <option value="hi">Hindi</option>
-      <option value="id">Indonesian</option>
-      <option value="it">Italian</option>
-      <option value="ja">Japanese</option>
-      <option value="ko">Korean</option>
-      <option value="fa">Persian</option>
-      <option value="pl">Polish</option>
-      <option value="pt">Portuguese</option>
-      <option value="ru">Russian</option>
-      <option value="es">Spanish</option>
-      <option value="sv">Swedish</option>
-      <option value="ta">Tamil</option>
-      <option value="th">Thai</option>
-      <option value="tr">Turkish</option>
+              <option value="all">Global (Any)</option>
+              <option disabled>──────────</option>
+              <option value="ar">Arabic</option>
+              <option value="zh">Chinese</option>
+              <option value="da">Danish</option>
+              <option value="nl">Dutch</option>
+              <option value="en">English</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="hi">Hindi</option>
+              <option value="id">Indonesian</option>
+              <option value="it">Italian</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="fa">Persian</option>
+              <option value="pl">Polish</option>
+              <option value="pt">Portuguese</option>
+              <option value="ru">Russian</option>
+              <option value="es">Spanish</option>
+              <option value="sv">Swedish</option>
+              <option value="ta">Tamil</option>
+              <option value="th">Thai</option>
+              <option value="tr">Turkish</option>
             </select>
           </div>
 
@@ -191,10 +192,20 @@ export default function Home() {
 
         {/* Error State */}
         {error && (
-          <div className="text-center text-red-400 bg-red-950/30 py-4 rounded-xl border border-red-900/50">
+          <div className="text-center text-red-400 bg-red-950/30 py-4 rounded-xl border border-red-900/50 mb-8">
             {error}
           </div>
         )}
+
+        {/* Disclaimer Trigger Button */}
+        <div className="text-center mb-12">
+          <button
+            onClick={() => setShowDisclaimer(true)}
+            className="text-xs text-neutral-500 underline hover:text-neutral-300 transition-colors"
+          >
+            Data & Bias Disclaimer
+          </button>
+        </div>
 
         {/* Results Section */}
         {data && !loading && (
@@ -209,6 +220,7 @@ export default function Home() {
                 "{data.explanation}"
               </p>
 
+              {/* Disclaimer */}
               <div className="flex flex-wrap gap-2">
                 {data.ai_keywords.map((keyword, index) => (
                   <span
@@ -275,8 +287,55 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            
           </div>
         )}
+
+        {/* Modal Content - Placed outside the data condition block */}
+        {showDisclaimer && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="bg-neutral-900 border border-neutral-700 rounded-xl max-w-lg w-full p-6 relative">
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowDisclaimer(false)}
+                className="absolute top-4 right-4 text-neutral-400 hover:text-white"
+              >
+                ✕
+              </button>
+
+              {/* Modal Content */}
+              <h3 className="text-lg font-semibold text-white mb-3">Data Limitations & Metadata Bias</h3>
+              <div className="text-sm text-neutral-300 space-y-3">
+                <p>
+                  While CineMapper translates abstract concepts into cinematic tropes, recommendations are bottlenecked by the metadata available in the TMDB API.
+                </p>
+                <ul className="list-disc pl-5 space-y-2 text-neutral-400">
+                  <li>
+                    <strong className="text-neutral-200">Asymmetrical Tagging:</strong> English-language films are heavily annotated by the community with deep, psychological keywords. International cinema often only contains basic genre tags.
+                  </li>
+                  <li>
+                    <strong className="text-neutral-200">The Semantic Trap:</strong> Because the AI routes prompts based on specific psychological keywords, searching for a non-English film often yields 0 results simply because nobody manually tagged them.
+                  </li>
+                  <li>
+                    <strong className="text-neutral-200">Mitigation:</strong> CineMapper dynamically lowers the required vote thresholds for non-English queries to prevent aggressive filtering of globally under-voted films.
+                  </li>
+                </ul>
+              </div>
+
+              {/* Bottom Action */}
+              <div className="mt-6 flex justify-end">
+                <button 
+                  onClick={() => setShowDisclaimer(false)}
+                  className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-lg transition-colors"
+                >
+                  Understood
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );
